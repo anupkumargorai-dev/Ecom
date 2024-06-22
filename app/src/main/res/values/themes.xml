@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Ecom" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.Ecom.MySplash" parent="Theme.SplashScreen">
+        <item name="android:windowBackground">@drawable/splash_1</item>
+        <item name="postSplashScreenTheme">@style/Theme.Ecom</item>
+    </style>
+</resources>
