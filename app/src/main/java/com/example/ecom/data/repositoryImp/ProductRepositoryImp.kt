@@ -12,4 +12,8 @@ class ProductRepositoryImp @Inject constructor(private val productServices: Prod
     override suspend fun getProducts(): ProductResponse {
        return productServices.getProducts()
     }
+
+    override suspend fun getProductByCategory(category: String, limit: Int): ProductResponse {
+        return productServices.getProductByCategory(category, limit)
+    }
 }

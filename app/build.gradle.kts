@@ -113,5 +113,9 @@ dependencies {
     //serialization
     implementation (libs.kotlinx.serialization.json.v132)
 
+    // Compose Flow layout
+    implementation(libs.androidx.foundation.layout)
+
+
 
 }

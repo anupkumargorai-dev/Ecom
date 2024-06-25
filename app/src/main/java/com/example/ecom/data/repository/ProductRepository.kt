@@ -7,4 +7,6 @@ interface ProductRepository {
 
     suspend fun getProducts(): ProductResponse
 
+    suspend fun getProductByCategory(category: String, limit: Int): ProductResponse
+
 }

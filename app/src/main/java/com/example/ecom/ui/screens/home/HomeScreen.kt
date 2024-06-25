@@ -1,5 +1,6 @@
 package com.example.ecom.ui.screens.home
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -8,60 +9,197 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
+import com.example.ecom.data.api.NetworkResult
+import com.example.ecom.data.api.models.response.Product
 import com.example.ecom.data.models.home.HomeViewpagerContent
-import com.example.ecom.ui.screens.navigation.DefaultNavigationImp
 import com.example.ecom.ui.screens.widgets.DotView
 import com.example.ecom.ui.screens.widgets.DotView2
-import com.example.ecom.ui.screens.widgets.MainAppBar
+import com.example.ecom.ui.screens.widgets.ProductSection
+import com.example.ecom.ui.screens.widgets.ShowLoading
+import com.example.ecom.ui.theme.Red
+import com.example.ecom.ui.viewmodel.ProductViewModel
 import com.example.ecom.utils.DataProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
-    Scaffold(
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: ProductViewModel = hiltViewModel()
+) {
 
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val itemSize = (screenWidth / 2) - 24.dp
+
+    val listState = rememberLazyListState()
+
+    val productState by viewModel.products.observeAsState()
+    val bestSellerState by viewModel.bestSellerProducts.observeAsState()
+    val trendingState by viewModel.trendingProducts.observeAsState()
+
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getProducts()
+        viewModel.getBestSellerProducts()
+        viewModel.getTrendingProducts()
+    }
+
+    Scaffold(
+        modifier = modifier
     ) {
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(it)) {
-            LazyRow {
-                val categories = DataProvider.provideHomeTopCategories()
-                items(categories.size) { it ->
-                    AsyncImage(
-                        modifier = Modifier
-                            .padding(horizontal = 10.dp)
-                            .fillMaxWidth(),
-                        model = categories[it].image,
-                        contentDescription = categories[it].title,
-                        imageLoader = ImageLoader(
-                            LocalContext.current
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it),
+            state = listState
+        ) {
+
+            item {
+                HomeViewpager(list = DataProvider.provideHomeViewPagerContent())
+            }
+
+            item {
+                LazyRow(
+                    modifier = Modifier.padding(bottom = 10.dp)
+                ) {
+                    val categories = DataProvider.provideHomeTopCategories()
+                    items(categories.size) { it ->
+                        AsyncImage(
+                            modifier = Modifier
+                                .padding(horizontal = 5.dp)
+                                .clip(shape = RoundedCornerShape(100.dp))
+                                .padding(5.dp)
+                                .fillMaxWidth(),
+                            model = categories[it].image,
+                            contentDescription = categories[it].title,
+                            imageLoader = ImageLoader(
+                                LocalContext.current
+                            )
                         )
-                    )
+                    }
                 }
             }
-            HomeViewpager(list = DataProvider.provideHomeViewPagerContent())
+
+            item {
+                when (productState) {
+                    is NetworkResult.Loading -> {
+                        ShowLoading()
+                    }
+
+                    is NetworkResult.Success -> {
+                        productState?.data?.products?.let { products ->
+                            ProductSection(
+                                title = "New Arrival",
+                                totalCount = products.size,
+                                itemSize = itemSize,
+                                listState = listState,
+                                itemNumber = 2,
+                                products = products,
+                                onProductClick = {product: Product ->
+                                    println(">>>>>>>>>product: $product")
+                                }
+                            )
+                        }
+                    }
+
+                    is NetworkResult.Error -> {}
+                    null -> {
+                        ShowLoading()
+
+                    }
+                }
+            }
+
+
+            item {
+                when (bestSellerState) {
+                    is NetworkResult.Loading -> {
+                        ShowLoading()
+                    }
+
+                    is NetworkResult.Success -> {
+                        bestSellerState?.data?.products?.let { products ->
+                            ProductSection(
+                                title = "Best Seller",
+                                totalCount = products.size,
+                                itemSize = itemSize,
+                                listState = listState,
+                                itemNumber = 3,
+                                products = products,
+                                onProductClick = {product: Product ->
+
+                                }
+                            )
+                        }
+
+                    }
+
+                    is NetworkResult.Error -> {}
+                    null -> {
+                        ShowLoading()
+                    }
+                }
+
+            }
+
+
+            item {
+                when(trendingState){
+                    is NetworkResult.Loading -> {
+                        ShowLoading()
+                    }
+                    is NetworkResult.Success -> {
+                        trendingState?.data?.products?.let { products ->
+                            ProductSection(
+                                title = "Trending",
+                                totalCount = products.size,
+                                itemSize = itemSize,
+                                listState = listState,
+                                itemNumber = 4,
+                                products = products,
+                                onProductClick = {product: Product ->
+
+                                }
+                            )
+                        }
+                    }
+                    is NetworkResult.Error -> {}
+                    null -> {
+                        ShowLoading()
+                    }
+                }
+            }
         }
     }
 

@@ -2,6 +2,7 @@
 agp = "8.5.0"
 coilCompose = "2.6.0"
 converterGson = "2.11.0"
+foundationLayout = "1.7.0-beta03"
 hiltAndroid = "2.48"
 hiltNavigationCompose = "1.2.0"
 kotlin = "2.0.0"
@@ -32,6 +33,7 @@ runtimeLivedata = "1.6.8"
 [libraries]
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-foundation-layout = { module = "androidx.compose.foundation:foundation-layout", version.ref = "foundationLayout" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
