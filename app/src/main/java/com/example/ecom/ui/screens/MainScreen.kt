@@ -39,16 +39,31 @@ import com.example.ecom.ui.screens.home.BottomBar
 import com.example.ecom.ui.screens.home.HomeScreen
 import com.example.ecom.ui.screens.navigation.BottomNavNavigationImp
 import com.example.ecom.ui.screens.navigation.DefaultNavigationImp
+import com.example.ecom.ui.screens.navigation.NavRoute
+import com.example.ecom.ui.screens.widgets.DefaultAppBar
 import com.example.ecom.ui.screens.widgets.MainAppBar
 
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStackEntry?.destination
+
+    val bottomNavScreens =
+        listOf(NavRoute.HOME.name, NavRoute.SEARCH.name, NavRoute.CART.name, NavRoute.TRENDING.name)
+
+    val isBottomNavScreen = currentDestination?.route in bottomNavScreens
+    val appBarTitle = if(currentDestination?.route?.contains( NavRoute.PRODUCT_DETAILS_SCREEN.name) == true) "Product Details" else currentDestination?.route.toString()
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        topBar = { MainAppBar() },
-        bottomBar = { BottomBar(navController = navController) }
+        topBar = {
+            if (isBottomNavScreen) MainAppBar(modifier = Modifier.padding(horizontal = 10.dp), name = "PiCkTo") else DefaultAppBar(title = appBarTitle){
+                navController.popBackStack()
+            }
+        },
+        bottomBar = { if (isBottomNavScreen) BottomBar(navController = navController) }
     ) {
         Column(
             modifier = Modifier

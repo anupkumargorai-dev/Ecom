@@ -1,6 +1,7 @@
 package com.example.ecom.ui.screens.widgets
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,12 +41,12 @@ fun MainAppBar(modifier: Modifier = Modifier,name : String= "Anup") {
         ) {
             Image(
                 modifier = Modifier
-                    .size(35.dp),
+                    .size(30.dp),
                 imageVector = Icons.Default.Menu, contentDescription = "menu"
             )
             Spacer(modifier = Modifier.width(20.dp))
             Text(
-                text = "Welcome! $name",
+                text = "$name",
                 fontFamily = FontFamily.Monospace,
                 fontSize = 20.sp)
 
@@ -57,13 +58,13 @@ fun MainAppBar(modifier: Modifier = Modifier,name : String= "Anup") {
         Row {
             Image(
                 modifier = Modifier
-                    .size(35.dp),
+                    .size(30.dp),
                 imageVector = Icons.Default.Search, contentDescription = "menu"
             )
             Spacer(modifier = Modifier.width(20.dp))
             Image(
                 modifier = Modifier
-                    .size(35.dp),
+                    .size(30.dp),
                 painter = painterResource(id = R.drawable.user), contentDescription = "menu"
             )
         }
@@ -71,8 +72,37 @@ fun MainAppBar(modifier: Modifier = Modifier,name : String= "Anup") {
     }
 }
 
+@Composable
+fun DefaultAppBar(modifier: Modifier = Modifier,title: String = "Home",onBackClick: () -> Unit) {
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(55.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            modifier = Modifier.size(40.dp).clickable { onBackClick() },
+            painter = painterResource(id = R.drawable.left_24), contentDescription = "back"
+        )
+        Spacer(modifier = Modifier.weight(1f))
+
+        Text(
+            modifier = Modifier,
+            text = title, fontFamily = FontFamily.SansSerif,fontSize = 20.sp)
+
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
 @Preview(showSystemUi = true)
 @Composable
 private fun AppBar() {
     MainAppBar()
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AppBarDefault() {
+    DefaultAppBar(){}
 }

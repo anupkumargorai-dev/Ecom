@@ -3,10 +3,13 @@ package com.example.ecom.ui.screens.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.ecom.data.api.models.response.Product
 import com.example.ecom.ui.screens.MainScreen
 import com.example.ecom.ui.screens.auth.AuthCompletionScreen
 import com.example.ecom.ui.screens.auth.LoginScreen
@@ -14,8 +17,10 @@ import com.example.ecom.ui.screens.auth.SignUpScreen
 import com.example.ecom.ui.screens.cart.CartScreen
 import com.example.ecom.ui.screens.home.HomeScreen
 import com.example.ecom.ui.screens.onboarding.OnBoardingScreens
+import com.example.ecom.ui.screens.product_details.widgets.ProductDetailsScreen
 import com.example.ecom.ui.screens.search.SearchScreen
 import com.example.ecom.ui.screens.trending.TreandingScreen
+import kotlinx.serialization.json.Json
 
 sealed class DefaultNavigation(val rout: String) {
     data object Starter : DefaultNavigation(NavRoute.STARTERS.name) {
@@ -50,7 +55,8 @@ enum class NavRoute {
     SEARCH,
     CART,
     TRENDING,
-    MainScreen
+    MainScreen,
+    PRODUCT_DETAILS_SCREEN
 }
 
 // Nav graph
@@ -88,23 +94,31 @@ fun DefaultNavigationImp(modifier: Modifier = Modifier,isLoggedIn: Boolean = fal
 }
 
 @Composable
-fun BottomNavNavigationImp(modifier: Modifier = Modifier, navController: NavHostController,) {
+fun BottomNavNavigationImp(modifier: Modifier = Modifier, navController: NavHostController) {
     NavHost(navController = navController, startDestination = BottomNavNavigation.BottomNav.rout) {
         navigation(
             startDestination = BottomNavNavigation.BottomNav.Home.rout,
             route = BottomNavNavigation.BottomNav.rout
-        ){
-            composable(route = BottomNavNavigation.BottomNav.Home.rout){
-                HomeScreen()
+        ) {
+            composable(route = BottomNavNavigation.BottomNav.Home.rout) {
+                HomeScreen(navHostController = navController)
             }
-            composable(route = BottomNavNavigation.BottomNav.Search.rout){
+            composable(route = BottomNavNavigation.BottomNav.Search.rout) {
                 SearchScreen()
             }
-            composable(route = BottomNavNavigation.BottomNav.Cart.rout){
+            composable(route = BottomNavNavigation.BottomNav.Cart.rout) {
                 CartScreen()
             }
-            composable(route = BottomNavNavigation.BottomNav.Trending.rout){
+            composable(route = BottomNavNavigation.BottomNav.Trending.rout) {
                 TreandingScreen()
+            }
+            composable(route = "${NavRoute.PRODUCT_DETAILS_SCREEN.name}/?productJson={productJson}",
+                arguments = listOf(navArgument("productJson") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val productJson = backStackEntry.arguments?.getString("productJson")
+                val product = Json.decodeFromString<Product>(productJson ?: "")
+                println(">>>>product is $product")
+                ProductDetailsScreen(product = product)
             }
         }
     }
